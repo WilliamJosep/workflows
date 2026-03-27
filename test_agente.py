@@ -1,20 +1,35 @@
-import pytest
 from mi_agente import agente, memoria
 
-def test_input_normal_ia(monkeypatch):
+def test_nombre_usuario():
+    respuesta = agente("me llamo William", client=None)
+    assert "William" in respuesta
+    assert memoria["nombre"] == "William"
 
-    class MockResponse:
-        class Choice:
-            class Message:
-                content = "Respuesta simulada"
-            message = Message()
-        choices = [Choice()]
+def test_recomendacion():
+    memoria["categoria_favorita"] = "Tecnología"
+    respuesta = agente("recomiéndame algo", client=None)
+    assert "Tecnología" in respuesta
 
-    def mock_create(*args, **kwargs):
-        return MockResponse()
+def test_recomendacion_sin_categoria():
+    memoria["categoria_favorita"] = None
+    respuesta = agente("recomiéndame algo", client=None)
+    assert "Te recomiendo" in respuesta
 
-    from mi_agente import client
-    monkeypatch.setattr(client.chat.completions, "create", mock_create)
+def test_input_normal_ia():
 
-    respuesta = agente("Hola")
+    class MockClient:
+        class chat:
+            class completions:
+                @staticmethod
+                def create(*args, **kwargs):
+                    class R:
+                        class Choice:
+                            class Message:
+                                content = "Respuesta simulada"
+                            message = Message()
+                        choices = [Choice()]
+                    return R()
+
+    respuesta = agente("Hola", client=MockClient())
+
     assert respuesta == "Respuesta simulada"
