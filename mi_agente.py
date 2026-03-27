@@ -55,9 +55,5 @@ def chat():
         respuesta = agente(user_input)
         print(f"Agente: {respuesta}")
 
-
-def agente(user_input):
-    raise Exception("Error simulado")
-
 if __name__ == "__main__":
     chat()
