@@ -11,7 +11,7 @@ memoria = {
 }
 
 # Productos para reglas locales
-productos = ["Laptop X200", "Smartphone Pro", "Auriculares Z", "Celulares"]
+productos = ["Laptop X200", "Smartphone Pro", "Auriculares Z"]
 
 def agente(user_input):
     user_input_lower = user_input.lower()
