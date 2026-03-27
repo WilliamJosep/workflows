@@ -1,15 +1,70 @@
-name: CI
+name: Quality Gates Pipeline
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [ "main", "develop" ]
+  pull_request:
 
 jobs:
-  test:
+  quality-check:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test
-        run: echo "CI funcionando"
+      # 1. Clonar repo
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # 2. Setup Python
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # 3. Instalar dependencias
+      - name: Instalar dependencias
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pylint
+
+      # 4. Linter (Quality Gate 1)
+      - name: Lint con Pylint
+        run: |
+          pylint mi_agente.py --fail-under=7
+
+      # 5. Tests + Coverage (Quality Gate 2)
+      - name: Ejecutar tests
+        run: |
+          pytest --cov=. --cov-report=term
+
+      # 6. Validar Coverage (Quality Gate 3)
+      - name: Validar coverage mínimo
+        run: |
+          coverage report --fail-under=80
+
+      # 7. Seguridad (Quality Gate 4)
+      - name: Seguridad con Bandit
+        run: |
+          pip install bandit
+          bandit -r . -ll
+
+      # 8. (Opcional) API Testing con Newman
+      - name: Instalar Newman
+        run: npm install -g newman
+
+      - name: Ejecutar tests API
+        run: |
+          if [ -f "postman_collection.json" ]; then
+            newman run postman_collection.json
+          else
+            echo "No hay colección Postman"
+          fi
+
+      # 9. (Opcional) E2E con Cypress
+      - name: Ejecutar Cypress
+        run: |
+          if [ -f "cypress.config.js" ]; then
+            npm install
+            npx cypress run
+          else
+            echo "No hay pruebas Cypress"
+          fi
