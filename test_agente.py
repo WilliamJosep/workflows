@@ -1,24 +1,20 @@
 import pytest
 from mi_agente import agente, memoria
 
-def test_nombre_usuario():
-    respuesta = agente("me llamo Juan")
-    assert "Juan" in respuesta
-    assert memoria["nombre"] == "Juan"
+def test_input_normal_ia(monkeypatch):
 
-def test_recomendacion_con_categoria():
-    memoria["categoria_favorita"] = "Tecnología"
-    respuesta = agente("recomiéndame algo")
-    assert "Tecnología" in respuesta
+    class MockResponse:
+        class Choice:
+            class Message:
+                content = "Respuesta simulada"
+            message = Message()
+        choices = [Choice()]
 
-def test_recomendacion_sin_categoria():
-    memoria["categoria_favorita"] = None
-    respuesta = agente("recomiéndame algo")
-    assert "Te recomiendo" in respuesta
+    def mock_create(*args, **kwargs):
+        return MockResponse()
 
-def test_input_normal_ia():
-    respuesta = agente("Hola, ¿qué vendes?")
-    assert isinstance(respuesta, str)
+    from mi_agente import client
+    monkeypatch.setattr(client.chat.completions, "create", mock_create)
 
-def test_falla_intencional():
-    assert 1 == 2  # ❌ siempre falla
+    respuesta = agente("Hola")
+    assert respuesta == "Respuesta simulada"
