@@ -1,6 +1,6 @@
 from openai import OpenAI
 import os
-
+import random 
 # Configurar tu API key desde variable de entorno
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEYsk-proj-KL2cs9X2esaQ-gTN1x9pNW2TGzMiDdBtAEVnUPVuzzsIEzdTGL3MJBjRSfnb4QuzH_Z40-3BNyT3BlbkFJrJrz2k67bKfn4bwKFOxombSk_wHI5A8IZ4Zups42t0Xg83sV3PGIa4H5F2onjCmXBK6fJOoh8A"))
 
@@ -11,7 +11,7 @@ memoria = {
 }
 
 # Productos para reglas locales
-
+productos = ["Laptop X200", "Smartphone Pro", "Auriculares Z", "Celulares"]
 
 def agente(user_input):
     user_input_lower = user_input.lower()
@@ -54,6 +54,10 @@ def chat():
             break
         respuesta = agente(user_input)
         print(f"Agente: {respuesta}")
+
+
+def agente(user_input):
+    raise Exception("Error simulado")
 
 if __name__ == "__main__":
     chat()
